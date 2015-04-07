@@ -1,4 +1,4 @@
-package f2.spw;
+ppackage f2.spw;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +28,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 		gp.sprites.add(v);
 		
-		timer = new Timer(15, new ActionListener() {
+		timer = new Timer(30, new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -62,7 +62,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!e.isAlive()){
 				e_iter.remove();
 				gp.sprites.remove(e);
-				score += 50000;
+				score += 1000;
 			}
 		}
 		

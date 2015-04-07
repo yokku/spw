@@ -1,4 +1,4 @@
-ppackage f2.spw;
+package f2.spw;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

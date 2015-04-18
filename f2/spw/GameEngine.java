@@ -17,12 +17,13 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Enemy> enemies = new ArrayList<Enemy>();	
 	private ArrayList<Item> item = new ArrayList<Item>();
 	private ArrayList<SecondEnemy> secondenemy = new ArrayList<SecondEnemy>();
+	private ArrayList<Bullet> bullet = new ArrayList<Bullet>();
 	private SpaceShip v;	
 	
 	private Timer timer;
 	
 	private long score = 0;
-	private double difficulty = 0.2;
+	private double difficulty = 0.1;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -30,7 +31,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		
 		gp.sprites.add(v);
 		
-		timer = new Timer(70, new ActionListener() {
+		timer = new Timer(150, new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -46,28 +47,34 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	private void generateEnemy(){
-		Enemy e = new Enemy((int)(Math.random()*780), 30);
+		Enemy e = new Enemy((int)(Math.random()*750), 30);
 		gp.sprites.add(e);
 		enemies.add(e);
 	}
 
 	private void generateItem(){								
-		Item i = new Item((int)(Math.random()*780), 30); 
+		Item i = new Item((int)(Math.random()*750), 30); 
 		gp.sprites.add(i);
 		item.add(i);
 	}
 
 	private void generateSecondEnemy(){								
-		SecondEnemy se = new SecondEnemy((int)(Math.random()*780), 30); 
+		SecondEnemy se = new SecondEnemy((int)(Math.random()*750), 30); 
 		gp.sprites.add(se);
 		secondenemy.add(se);
+	}
+
+	private void generateBullet(){								
+		Bullet b = new Bullet(v.x+v.width/2,v.y); 
+		gp.sprites.add(b);
+		bullet.add(b);
 	}
 	
 	private void process(){
 		if(Math.random() < difficulty){
 			generateEnemy();
 		}
-		if(Math.random() < 0.05){   					
+		if(Math.random() < 0.03){   					
 			generateItem();
 		}
 		if(Math.random() < 0.02){   					
@@ -109,13 +116,49 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 
+		Iterator<Bullet> b_iter = bullet.iterator();
+		while(b_iter.hasNext()){
+			Bullet b = b_iter.next();
+			b.proceed();
+
+			if(!b.isAlive()){
+				b_iter.remove();
+				gp.sprites.remove(b);
+			}
+		}
+
 		gp.updateGameUI(this);
 		
 		Rectangle2D.Double vr = v.getRectangle();
 		Rectangle2D.Double er;
+		Rectangle2D.Double br;
 		for(Enemy e : enemies){
-			er = e.getRectangle();
+			er = e.getRectangle();		
+			for(Bullet b : bullet){			
+				br = b.getRectangle();
+				if(br.intersects(er)){
+					score += 300;
+					//e.notAlive();
+					return;
+				}
+			}
 			if(er.intersects(vr)){
+				die();
+				return;
+			}
+		}
+		Rectangle2D.Double ser;			
+		for(SecondEnemy se : secondenemy){			
+			ser = se.getRectangle();
+			for(Bullet b : bullet){			
+				br = b.getRectangle();
+				if(br.intersects(ser)){
+					score += 400;
+					//se.notAlive();
+					return;
+				}
+			}
+			if(ser.intersects(vr)){
 				die();
 				return;
 			}
@@ -124,19 +167,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(Item i : item){			
 			ir = i.getRectangle();
 			if(ir.intersects(vr)){
-				score += 1000;
+				score += 500;
 				i.notAlive();
 				return;
 			}
 		}
-		Rectangle2D.Double ser;			
-		for(SecondEnemy se : secondenemy){			
-			ser = se.getRectangle();
-			if(ser.intersects(vr)){
-				die();
-				return;
-			}
-		}
+		
 	}
 	
 	public void die(){
@@ -168,6 +204,9 @@ public class GameEngine implements KeyListener, GameReporter{
 			break;
 		case KeyEvent.VK_DOWN: //down
 			v.moveUpDown(1);
+			break;
+		case KeyEvent.VK_SPACE:	 //bullet	
+			generateBullet();
 			break;
 
 		}

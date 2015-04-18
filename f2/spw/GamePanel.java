@@ -1,49 +1,41 @@
 package f2.spw;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import java.util.ArrayList;
 
-public class SpaceShip extends Sprite{
+import javax.swing.JPanel;
 
-	int step = 50;
-	BufferedImage image;
+public class GamePanel extends JPanel {
+	
+	private BufferedImage bi;	
+	Graphics2D big;
+	ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 
-	public SpaceShip(int x, int y, int width, int height) {
-		super(x, y, width, height);
+	public GamePanel() {
+		bi = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+		big = (Graphics2D) bi.getGraphics();
+		big.setBackground(Color.BLACK);
+	}
+
+	public void updateGameUI(GameReporter reporter){
+		big.clearRect(0, 0, 800, 600);
 		
-		try{
-			image = ImageIO.read(new File("f2/image/Spaceship.png"));
+		big.setColor(Color.GREEN);		
+		big.drawString(String.format("%06d", reporter.getScore()), 5, 20);
+		for(Sprite s : sprites){
+			s.draw(big);
 		}
-		catch(IOException e){
-
-		}
+		
+		repaint();
 	}
 
 	@Override
-	public void draw(Graphics2D g) {
-		//g.setColor(Color.BLUE);
-		//g.fillRect(x, y, width, height);
-		g.drawImage(image, x, y, width, height, null);
+	public void paint(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.drawImage(bi, null, 0, 0);
 	}
 
-	public void moveLeftRight(int direction){
-		x += (step * direction);
-		if(x < 0)
-			x = 0;
-		if(x > 780 - width)
-			x = 780 - width;
-	}
-	
-	public void moveUpDown(int direction){
-		y += (step * direction);
-		if(y < 0)
-			y = 0;
-		if(y > 600 - width)
-			y = 600 - width;
-	}
 }

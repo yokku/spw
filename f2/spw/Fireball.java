@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class SecondEnemy extends Sprite{
+public class Fireball extends Sprite{
 	public static final int Y_TO_FADE = 400;
 	public static final int Y_TO_DIE = 600;
 	
@@ -17,11 +17,11 @@ public class SecondEnemy extends Sprite{
 	private boolean alive = true;
 	BufferedImage image;
 
-	public SecondEnemy(int x, int y) {
-		super(x, y, 50, 50);
+	public Fireball(int x, int y) {
+		super(x, y, 70, 150);
 		
 		try{
-			image = ImageIO.read(new File("f2/image/SecondEnemy.png"));
+			image = ImageIO.read(new File("f2/image/Fireball.png"));
 		}
 		catch(IOException e){
 
@@ -36,8 +36,7 @@ public class SecondEnemy extends Sprite{
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
 					(float)(Y_TO_DIE - y)/(Y_TO_DIE - Y_TO_FADE)));
 		}
-		//g.setColor(Color.PINK);
-		//g.fillRect(x, y, width, height);
+		
 		g.drawImage(image, x, y, width, height, null);
 	}
 

@@ -18,6 +18,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Item> item = new ArrayList<Item>();
 	private ArrayList<SecondEnemy> secondenemy = new ArrayList<SecondEnemy>();
 	private ArrayList<Bullet> bullet = new ArrayList<Bullet>();
+	private ArrayList<Fireball> fireball = new ArrayList<Fireball>();
 	private SpaceShip v;	
 	
 	private Timer timer;
@@ -47,19 +48,19 @@ public class GameEngine implements KeyListener, GameReporter{
 	}
 	
 	private void generateEnemy(){
-		Enemy e = new Enemy((int)(Math.random()*750), 30);
+		Enemy e = new Enemy((int)(Math.random()*750), 0);
 		gp.sprites.add(e);
 		enemies.add(e);
 	}
 
 	private void generateItem(){								
-		Item i = new Item((int)(Math.random()*750), 30); 
+		Item i = new Item((int)(Math.random()*750), 0); 
 		gp.sprites.add(i);
 		item.add(i);
 	}
 
 	private void generateSecondEnemy(){								
-		SecondEnemy se = new SecondEnemy((int)(Math.random()*750), 30); 
+		SecondEnemy se = new SecondEnemy((int)(Math.random()*750), 0); 
 		gp.sprites.add(se);
 		secondenemy.add(se);
 	}
@@ -68,6 +69,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		Bullet b = new Bullet(v.x+v.width/2,v.y); 
 		gp.sprites.add(b);
 		bullet.add(b);
+	}
+
+	private void generateFireball(){								
+		Fireball f = new Fireball((int)(Math.random()*750), 0); 
+		gp.sprites.add(f);
+		fireball.add(f);
 	}
 	
 	private void process(){
@@ -80,6 +87,9 @@ public class GameEngine implements KeyListener, GameReporter{
 		if(Math.random() < 0.02){   					
 			generateSecondEnemy();
 		}
+		if(Math.random() < 0.04){   					
+			generateFireball();
+		}
 		
 		Iterator<Enemy> e_iter = enemies.iterator();
 		while(e_iter.hasNext()){
@@ -89,7 +99,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!e.isAlive()){
 				e_iter.remove();
 				gp.sprites.remove(e);
-				score += 100;
+				//score += 100;
 			}
 		}
 
@@ -112,10 +122,10 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!se.isAlive()){
 				se_iter.remove();
 				gp.sprites.remove(se);
-				score += 200;
+			//	score += 200;
 			}
 		}
-
+		
 		Iterator<Bullet> b_iter = bullet.iterator();
 		while(b_iter.hasNext()){
 			Bullet b = b_iter.next();
@@ -124,6 +134,17 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(!b.isAlive()){
 				b_iter.remove();
 				gp.sprites.remove(b);
+			}
+		}
+
+		Iterator<Fireball> f_iter = fireball.iterator();
+		while(f_iter.hasNext()){
+			Fireball f = f_iter.next();
+			f.proceed();
+			
+			if(!f.isAlive()){
+				f_iter.remove();
+				gp.sprites.remove(f);
 			}
 		}
 
@@ -138,7 +159,7 @@ public class GameEngine implements KeyListener, GameReporter{
 				br = b.getRectangle();
 				if(br.intersects(er)){
 					score += 300;
-					//e.notAlive();
+					e.notAlive();
 					return;
 				}
 			}
@@ -154,7 +175,7 @@ public class GameEngine implements KeyListener, GameReporter{
 				br = b.getRectangle();
 				if(br.intersects(ser)){
 					score += 400;
-					//se.notAlive();
+					se.notAlive();
 					return;
 				}
 			}
@@ -169,6 +190,16 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(ir.intersects(vr)){
 				score += 500;
 				i.notAlive();
+				return;
+			}
+		}
+
+		Rectangle2D.Double fr;			
+		for(Fireball f : fireball){			
+			fr = f.getRectangle();
+			if(fr.intersects(vr)){
+				score -= 500;
+				f.notAlive();
 				return;
 			}
 		}

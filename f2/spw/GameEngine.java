@@ -19,6 +19,7 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<SecondEnemy> secondenemy = new ArrayList<SecondEnemy>();
 	private ArrayList<Bullet> bullet = new ArrayList<Bullet>();
 	private ArrayList<Fireball> fireball = new ArrayList<Fireball>();
+	private ArrayList<Light> light = new ArrayList<Light>();
 	private SpaceShip v;	
 	
 	private Timer timer;
@@ -76,6 +77,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		gp.sprites.add(f);
 		fireball.add(f);
 	}
+
+	private void generateLight(){								
+		Light l = new Light(0, (int)(Math.random()*350)); 
+		gp.sprites.add(l);
+		light.add(l);
+	}
 	
 	private void process(){
 		if(Math.random() < difficulty){
@@ -89,6 +96,9 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 		if(Math.random() < 0.04){   					
 			generateFireball();
+		}
+		if(Math.random() < 0.01){   					
+			generateLight();
 		}
 		
 		Iterator<Enemy> e_iter = enemies.iterator();
@@ -148,6 +158,17 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 
+		Iterator<Light> l_iter = light.iterator();
+		while(l_iter.hasNext()){
+			Light l = l_iter.next();
+			l.proceed();
+			
+			if(!l.isAlive()){
+				l_iter.remove();
+				gp.sprites.remove(l);
+			}
+		}
+
 		gp.updateGameUI(this);
 		
 		Rectangle2D.Double vr = v.getRectangle();
@@ -200,6 +221,16 @@ public class GameEngine implements KeyListener, GameReporter{
 			if(fr.intersects(vr)){
 				score -= 500;
 				f.notAlive();
+				return;
+			}
+		}
+
+		Rectangle2D.Double lr;			
+		for(Light l : light){			
+			lr = l.getRectangle();
+			if(lr.intersects(vr)){
+				score -= 1000;
+				l.notAlive();
 				return;
 			}
 		}

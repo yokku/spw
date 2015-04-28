@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-public class Bullet extends Sprite{
+public class Water extends Sprite{
 	public static final int Y_TO_FADE = 600;
 	public static final int Y_TO_DIE = 20;
 	
@@ -17,10 +17,10 @@ public class Bullet extends Sprite{
 	private boolean alive = true;
 	BufferedImage image;
 
-	public Bullet(int x, int y) {
-		super(x, y, 25, 50);
+	public Water(int x, int y) {
+		super(x, y, 15, 30);
 		try{
-			image = ImageIO.read(new File("f2/image/Bullet.png"));
+			image = ImageIO.read(new File("f2/image/Water.png"));
 		}
 		catch(IOException e){
 

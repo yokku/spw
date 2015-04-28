@@ -15,16 +15,16 @@ public class Light extends Sprite{
 	
 	private int step = 15;
 	private boolean alive = true;
-	//BufferedImage image;
+	BufferedImage image;
 
 	public Light(int x, int y) {
-		super(x, y, 400, 5);
-		/*try{
-			image = ImageIO.read(new File("f2/image/Light3.png"));
+		super(x, y, 300, 50);
+		try{
+			image = ImageIO.read(new File("f2/image/Light.png"));
 		}
 		catch(IOException e){
 
-		} */
+		} 
 	}
 
 	@Override
@@ -35,9 +35,9 @@ public class Light extends Sprite{
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
 					(float)(X_TO_DIE - x)/(X_TO_DIE - X_TO_FADE)));
 		}
-		g.setColor(Color.RED);
-		g.fillRect(x, y, width, height);
-		//g.drawImage(image, x, y, width, height, null);
+		//g.setColor(Color.RED);
+		//g.fillRect(x, y, width, height);
+		g.drawImage(image, x, y, width, height, null);
 	}
 
 	public void proceed(){

@@ -20,6 +20,8 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Bullet> bullet = new ArrayList<Bullet>();
 	private ArrayList<Fireball> fireball = new ArrayList<Fireball>();
 	private ArrayList<Light> light = new ArrayList<Light>();
+	private ArrayList<Laser> laser = new ArrayList<Laser>();
+	private ArrayList<Water> water = new ArrayList<Water>();
 	private SpaceShip v;	
 	
 	private Timer timer;
@@ -84,6 +86,18 @@ public class GameEngine implements KeyListener, GameReporter{
 		light.add(l);
 	}
 	
+	private void generateLaser(){								
+		Laser la = new Laser(v.x+v.width/2,v.y); 
+		gp.sprites.add(la);
+		laser.add(la);
+	}
+
+	private void generateWater(){								
+		Water w = new Water(v.x+v.width/2,v.y); 
+		gp.sprites.add(w);
+		water.add(w);
+	}
+
 	private void process(){
 		if(Math.random() < difficulty){
 			generateEnemy();
@@ -169,11 +183,33 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 
+		Iterator<Laser> la_iter = laser.iterator();
+		while(la_iter.hasNext()){
+			Laser la = la_iter.next();
+			la.proceed();
+
+			if(!la.isAlive()){
+				la_iter.remove();
+				gp.sprites.remove(la);
+			}
+		}
+
+		Iterator<Water> w_iter = water.iterator();
+		while(w_iter.hasNext()){
+			Water w = w_iter.next();
+			w.proceed();
+
+			if(!w.isAlive()){
+				w_iter.remove();
+				gp.sprites.remove(w);
+			}
+		}
+
 		gp.updateGameUI(this);
 		
 		Rectangle2D.Double vr = v.getRectangle();
-		Rectangle2D.Double er;
 		Rectangle2D.Double br;
+		Rectangle2D.Double er;
 		for(Enemy e : enemies){
 			er = e.getRectangle();		
 			for(Bullet b : bullet){			
@@ -214,28 +250,41 @@ public class GameEngine implements KeyListener, GameReporter{
 				return;
 			}
 		}
-
+		Rectangle2D.Double wr;
 		Rectangle2D.Double fr;			
-		for(Fireball f : fireball){			
+		for(Fireball f : fireball){	
 			fr = f.getRectangle();
+			for(Water w : water){			
+				wr = w.getRectangle();
+				if(wr.intersects(fr)){
+					score += 500;
+					f.notAlive();
+					return;
+				}
+			}
 			if(fr.intersects(vr)){
 				score -= 500;
-				f.notAlive();
 				return;
 			}
 		}
-
+		Rectangle2D.Double lar;
 		Rectangle2D.Double lr;			
 		for(Light l : light){			
 			lr = l.getRectangle();
+			for(Laser la : laser){			
+				lar = la.getRectangle();
+				if(lar.intersects(lr)){
+					score += 1000;
+					l.notAlive();
+					return;
+				}
+			}
 			if(lr.intersects(vr)){
 				score -= 1000;
-				l.notAlive();
 				return;
 			}
 		}
-		
-	}
+	}	
 	
 	public void die(){
 		timer.stop();
@@ -270,7 +319,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		case KeyEvent.VK_SPACE:	 //bullet	
 			generateBullet();
 			break;
-
+		case KeyEvent.VK_X:	 //laser
+			generateLaser();
+			break;
+		case KeyEvent.VK_Z:	 //water
+			generateWater();
+			break;
 		}
 	}
 

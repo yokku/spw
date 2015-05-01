@@ -22,12 +22,15 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Light> light = new ArrayList<Light>();
 	private ArrayList<Laser> laser = new ArrayList<Laser>();
 	private ArrayList<Water> water = new ArrayList<Water>();
+	private ArrayList<CoinSet> coinset = new ArrayList<CoinSet>();
 	private SpaceShip v;	
 	
 	private Timer timer;
 	
 	private long score = 0;
 	private double difficulty = 0.1;
+	private int life = 5;
+	private int coincount = 0;
 	
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
@@ -98,6 +101,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		water.add(w);
 	}
 
+	private void generateCoinSet(){								
+		CoinSet cs = new CoinSet((int)(Math.random()*750), 0); 
+		gp.sprites.add(cs);
+		coinset.add(cs);
+	}
+
 	private void process(){
 		if(Math.random() < difficulty){
 			generateEnemy();
@@ -113,6 +122,9 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 		if(Math.random() < 0.01){   					
 			generateLight();
+		}
+		if(Math.random() < 0.01){   					
+			generateCoinSet();
 		}
 		
 		Iterator<Enemy> e_iter = enemies.iterator();
@@ -205,6 +217,17 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 		}
 
+		Iterator<CoinSet> cs_iter = coinset.iterator();
+		while(cs_iter.hasNext()){
+			CoinSet cs = cs_iter.next();
+			cs.proceed();
+
+			if(!cs.isAlive()){
+				cs_iter.remove();
+				gp.sprites.remove(cs);
+			}
+		}
+
 		gp.updateGameUI(this);
 		
 		Rectangle2D.Double vr = v.getRectangle();
@@ -221,7 +244,12 @@ public class GameEngine implements KeyListener, GameReporter{
 				}
 			}
 			if(er.intersects(vr)){
-				die();
+				if(life > 0){
+					life--;
+					e.notAlive();
+				}
+				else
+					die();
 				return;
 			}
 		}
@@ -237,7 +265,12 @@ public class GameEngine implements KeyListener, GameReporter{
 				}
 			}
 			if(ser.intersects(vr)){
-				die();
+				if(life > 0){
+					life--;
+					se.notAlive();
+				}
+				else
+					die();
 				return;
 			}
 		}
@@ -246,8 +279,13 @@ public class GameEngine implements KeyListener, GameReporter{
 			ir = i.getRectangle();
 			if(ir.intersects(vr)){
 				score += 500;
-				i.notAlive();
+				coincount++;
+				i.notAlive();					
 				return;
+			}
+			if(coincount>=100){
+					life++;
+					coincount-=100;
 			}
 		}
 		Rectangle2D.Double wr;
@@ -264,6 +302,7 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 			if(fr.intersects(vr)){
 				score -= 500;
+				f.notAlive();
 				return;
 			}
 		}
@@ -281,7 +320,22 @@ public class GameEngine implements KeyListener, GameReporter{
 			}
 			if(lr.intersects(vr)){
 				score -= 1000;
+				l.notAlive();
 				return;
+			}
+		}
+		Rectangle2D.Double csr;			
+		for(CoinSet cs : coinset){			
+			csr = cs.getRectangle();
+			if(csr.intersects(vr)){
+				score += 700;
+				coincount += 10;
+				cs.notAlive();					
+				return;
+			}
+			if(coincount>=100){
+					life++;
+					coincount-=100;
 			}
 		}
 	}	
@@ -330,6 +384,14 @@ public class GameEngine implements KeyListener, GameReporter{
 
 	public long getScore(){
 		return score;
+	}
+
+	public int getLife(){
+		return life;
+	}
+
+	public int getCoinCount(){
+		return coincount;
 	}
 	
 	@Override

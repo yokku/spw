@@ -19,6 +19,8 @@ public class GamePanel extends JPanel {
 	ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	
 	BufferedImage bg;
+	BufferedImage life;
+	BufferedImage coin;
 
 	public GamePanel() {
 		bi = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
@@ -29,16 +31,41 @@ public class GamePanel extends JPanel {
 		}
 		catch(IOException e){
 
+		} 
+
+		try{
+			life = ImageIO.read(new File("f2/image/Spaceship.png"));
+		}
+		catch(IOException e){
+
+		}
+		
+		try{
+			coin = ImageIO.read(new File("f2/image/coin.png"));
+		}
+		catch(IOException e){
+
 		}
 	}
 
 	public void updateGameUI(GameReporter reporter){
 		big.clearRect(0, 0, 800, 600);
 		
-		big.setColor(Color.BLUE);
 		big.drawImage(bg, 0, 0, 800, 600, null);
+		big.setColor(Color.BLUE);
 		//big.setFont("Tohoma", Font.BOLD,35);
 		big.drawString(String.format("%06d", reporter.getScore()), 5, 20);
+
+		big.drawImage(life, 750, 0, 30, 30, null);
+		big.setColor(Color.RED);
+		big.drawString(String.format("%02d", reporter.getLife()), 730, 25);
+
+		big.drawImage(coin, 750, 40, 30, 30, null);
+		big.setColor(Color.RED);
+		big.drawString(String.format("%02d", reporter.getCoinCount()), 730, 65);
+
+		big.setColor(Color.BLUE);
+		big.drawString(String.format("Game By.. YOK ", reporter.getScore()), 5, 570);
 		for(Sprite s : sprites){
 			s.draw(big);
 		}

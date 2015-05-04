@@ -23,6 +23,8 @@ public class GameEngine implements KeyListener, GameReporter{
 	private ArrayList<Laser> laser = new ArrayList<Laser>();
 	private ArrayList<Water> water = new ArrayList<Water>();
 	private ArrayList<CoinSet> coinset = new ArrayList<CoinSet>();
+	private ArrayList<WaterBottle> waterbottle = new ArrayList<WaterBottle>();
+	
 	private SpaceShip v;	
 	
 	private Timer timer;
@@ -31,7 +33,8 @@ public class GameEngine implements KeyListener, GameReporter{
 	private double difficulty = 0.1;
 	private int life = 5;
 	private int coincount = 0;
-	
+	private int watercount = 0;
+
 	public GameEngine(GamePanel gp, SpaceShip v) {
 		this.gp = gp;
 		this.v = v;		
@@ -107,6 +110,12 @@ public class GameEngine implements KeyListener, GameReporter{
 		coinset.add(cs);
 	}
 
+	private void generateWaterBottle(){								
+		WaterBottle wb = new WaterBottle((int)(Math.random()*750), 0); 
+		gp.sprites.add(wb);
+		waterbottle.add(wb);
+	}
+
 	private void process(){
 		if(Math.random() < difficulty){
 			generateEnemy();
@@ -125,6 +134,9 @@ public class GameEngine implements KeyListener, GameReporter{
 		}
 		if(Math.random() < 0.01){   					
 			generateCoinSet();
+		}
+		if(Math.random() < 0.005){   					
+			generateWaterBottle();
 		}
 		
 		Iterator<Enemy> e_iter = enemies.iterator();
@@ -227,7 +239,17 @@ public class GameEngine implements KeyListener, GameReporter{
 				gp.sprites.remove(cs);
 			}
 		}
+		
+		Iterator<WaterBottle> wb_iter = waterbottle.iterator();
+		while(wb_iter.hasNext()){
+			WaterBottle wb = wb_iter.next();
+			wb.proceed();
 
+			if(!wb.isAlive()){
+				wb_iter.remove();
+				gp.sprites.remove(wb);
+			}
+		}
 		gp.updateGameUI(this);
 		
 		Rectangle2D.Double vr = v.getRectangle();
@@ -293,7 +315,7 @@ public class GameEngine implements KeyListener, GameReporter{
 		for(Fireball f : fireball){	
 			fr = f.getRectangle();
 			for(Water w : water){			
-				wr = w.getRectangle();
+				wr = w.getRectangle();				
 				if(wr.intersects(fr)){
 					score += 500;
 					f.notAlive();
@@ -338,6 +360,16 @@ public class GameEngine implements KeyListener, GameReporter{
 					coincount-=100;
 			}
 		}
+		Rectangle2D.Double wbr;			
+		for(WaterBottle wb : waterbottle){			
+			wbr = wb.getRectangle();
+			if(wbr.intersects(vr)){
+				watercount += 10;
+				wb.notAlive();					
+				return;
+			}
+		}
+
 	}	
 	
 	public void die(){
@@ -376,8 +408,11 @@ public class GameEngine implements KeyListener, GameReporter{
 		case KeyEvent.VK_X:	 //laser
 			generateLaser();
 			break;
-		case KeyEvent.VK_Z:	 //water
-			generateWater();
+		case KeyEvent.VK_Z:	 //water		
+			if(watercount>0){
+				generateWater();
+				watercount--;
+			}
 			break;
 		}
 	}
@@ -394,6 +429,10 @@ public class GameEngine implements KeyListener, GameReporter{
 		return coincount;
 	}
 	
+	public int getWaterCount(){
+		return watercount;
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		controlVehicle(e);

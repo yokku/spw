@@ -21,6 +21,7 @@ public class GamePanel extends JPanel {
 	BufferedImage bg;
 	BufferedImage life;
 	BufferedImage coin;
+	BufferedImage water;
 
 	public GamePanel() {
 		bi = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
@@ -46,6 +47,13 @@ public class GamePanel extends JPanel {
 		catch(IOException e){
 
 		}
+
+		try{
+			water = ImageIO.read(new File("f2/image/Water2.png"));
+		}
+		catch(IOException e){
+
+		}
 	}
 
 	public void updateGameUI(GameReporter reporter){
@@ -63,6 +71,10 @@ public class GamePanel extends JPanel {
 		big.drawImage(coin, 750, 40, 30, 30, null);
 		big.setColor(Color.RED);
 		big.drawString(String.format("%02d", reporter.getCoinCount()), 730, 65);
+
+		big.drawImage(water, 755, 80, 20, 30, null);
+		big.setColor(Color.RED);
+		big.drawString(String.format("%02d", reporter.getWaterCount()), 730, 105);
 
 		big.setColor(Color.BLUE);
 		big.drawString(String.format("Game By.. YOK ", reporter.getScore()), 5, 570);
